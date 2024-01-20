@@ -18,12 +18,14 @@ import shutil
 import sys
 sys.path.append('utility/file_operations')
 sys.path.append('utility/tkinter_operations')
+sys.path.append('constants/ui_operation')
 from utility.file_operations import read_json_from_file
 from utility.file_operations import write_json_to_file
 from utility.tkinter_operations import clear_widgets
 from utility.tkinter_operations import display_selected_video
-# functions
+from constants.ui_operation import TEMP_JSON_FILE_PATH, SETTINGS_JSON_FILE_PATH, bg_color
 
+# functions
 def import_settings():
     return read_json_from_file(SETTINGS_JSON_FILE_PATH)
 
@@ -34,11 +36,13 @@ def export_settings(silent_mode):
     }
     write_json_to_file(SETTINGS_JSON_FILE_PATH, data)
 
+
 def reset_temp_file():
     data = {
             "selected_video": ""
     }
     write_json_to_file(TEMP_JSON_FILE_PATH, data)
+
 
 def open_video(info_label):
     file_path = filedialog.askopenfilename(filetypes=[("Video files", "*.mp4;*.avi;*.mkv")])
@@ -287,24 +291,12 @@ def load_settings_frame():
 
 
 
-    
-
-
-
-
-    
-
 # GLOBAL VARS
-bg_color = "#2b2e2e"
-SETTINGS_JSON_FILE_PATH = 'internal/json/settings.json'
-TEMP_JSON_FILE_PATH = 'internal/json/temp.json'
 settings = import_settings()
 
 # initialize app
 root = tk.Tk()
 root.title("AI VFX Assistant")
-# root.geometry('800x600+150+10')
-# root.eval("tk::PlaceWindow . center")
 
 # create a frame widget
 frame1 = tk.Frame(root, width=1000, height=600, bg=bg_color)
