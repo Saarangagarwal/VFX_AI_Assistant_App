@@ -19,6 +19,7 @@ import sys
 sys.path.append('utility/file_operations')
 sys.path.append('utility/tkinter_operations')
 sys.path.append('constants/ui_operation')
+sys.path.append('constants/internal_config')
 from utility.file_operations import read_json_from_file
 from utility.file_operations import write_json_to_file
 from utility.tkinter_operations import clear_widgets
@@ -293,6 +294,7 @@ def load_settings_frame():
 
 # GLOBAL VARS
 settings = import_settings()
+TRAIN_COUNT_MAP = {}
 
 # initialize app
 root = tk.Tk()
