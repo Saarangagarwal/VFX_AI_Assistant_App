@@ -13,18 +13,16 @@ from deepface import DeepFace
 from retinaface import RetinaFace
 from imutils.video import VideoStream
 import imutils
-import shutil
 
 import sys
-sys.path.append('utility/file_operations')
-sys.path.append('utility/tkinter_operations')
-sys.path.append('constants/ui_operation')
-sys.path.append('constants/internal_config')
-from utility.file_operations import read_json_from_file
-from utility.file_operations import write_json_to_file
-from utility.tkinter_operations import clear_widgets
-from utility.tkinter_operations import display_selected_video
+sys.path.append('utility')
+sys.path.append('constants')
+
+from utility.file_operations import read_json_from_file, write_json_to_file, count_files_in_directory
+from utility.tkinter_operations import clear_widgets, display_selected_video
 from constants.ui_operation import TEMP_JSON_FILE_PATH, SETTINGS_JSON_FILE_PATH, bg_color
+from constants.internal_config import FR_DATASET_PATH
+from utility.face_recognition_operations import fr_encoding_gen, fr_dump_encodings, fr_load_encodings
 
 # functions
 def import_settings():
@@ -53,6 +51,25 @@ def open_video(info_label):
             "selected_video": file_path
         }
         write_json_to_file(TEMP_JSON_FILE_PATH, data)
+
+
+def count_files_in_directory_helper(directory_path):
+    # Filter the items to include only subdirectories
+    items = os.listdir(FR_DATASET_PATH)
+    actor_folders = [item for item in items if os.path.isdir(os.path.join(FR_DATASET_PATH, item))]
+
+    for actor in actor_folders:
+        if actor not in [".ipynb_checkpoints"]:
+            num_files = count_files_in_directory(f"{FR_DATASET_PATH}/{actor}")
+            TRAIN_COUNT_MAP[actor] = num_files
+
+
+def generate_face_recognition_encodings():
+    # call the generate encoding function for face recognition algorithm
+    knownNames, knownEncodings = fr_encoding_gen()
+
+    # save encodings to the file system
+    fr_dump_encodings(knownEncodings, knownNames)
 
 
 def load_frame1():
@@ -280,7 +297,7 @@ def load_settings_frame():
     # Back button
     tk.Button(
         settings_frame,
-        text="Save and Back",
+        text="Save & Back",
         font=("TkHeadingFont", 20),
         bg="#28393a",
         fg="white",
@@ -288,6 +305,18 @@ def load_settings_frame():
         activebackground="#badee2",
         activeforeground="grey",
         command=lambda:(export_settings(selected_option.get()), load_frame1())
+    ).pack(pady=20)
+
+    tk.Button(
+        settings_frame,
+        text="Generate Encodings",
+        font=("TkHeadingFont", 20),
+        bg="#28393a",
+        fg="white",
+        cursor="hand2",
+        activebackground="#badee2",
+        activeforeground="grey",
+        command=lambda:generate_face_recognition_encodings()
     ).pack(pady=20)
 
 
