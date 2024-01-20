@@ -1,7 +1,19 @@
 import tkinter as tk
 from tkinter import filedialog
-from PIL import ImageTk
+from PIL import ImageTk, Image
 import json
+from imutils import paths
+import argparse
+import pickle
+import cv2
+import os
+import face_recognition
+import time
+from deepface import DeepFace
+from retinaface import RetinaFace
+from imutils.video import VideoStream
+import imutils
+import shutil
 
 # functions
 def read_json_from_file(file_path):
@@ -213,7 +225,7 @@ def load_frame3():
     if temp_data['selected_video'] == "":
         load_frame1()
 
-     
+
 
 
 def load_settings_frame():
