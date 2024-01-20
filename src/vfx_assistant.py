@@ -15,17 +15,14 @@ from imutils.video import VideoStream
 import imutils
 import shutil
 
+import sys
+sys.path.append('utility/file_operations')
+sys.path.append('utility/tkinter_operations')
+from utility.file_operations import read_json_from_file
+from utility.file_operations import write_json_to_file
+from utility.tkinter_operations import clear_widgets
+from utility.tkinter_operations import display_selected_video
 # functions
-def read_json_from_file(file_path):
-    with open(file_path, 'r') as file:
-        return json.load(file)
-
-
-def write_json_to_file(file_path, data):
-    with open(file_path, 'w') as file:
-        json.dump(data, file, indent=2)
-    settings = import_settings()
-
 
 def import_settings():
     return read_json_from_file(SETTINGS_JSON_FILE_PATH)
@@ -36,12 +33,6 @@ def export_settings(silent_mode):
         "SILENT_MODE": silent_mode
     }
     write_json_to_file(SETTINGS_JSON_FILE_PATH, data)
-
-
-def clear_widgets(frame):
-    for widget in frame.winfo_children():
-        widget.destroy()
-
 
 def reset_temp_file():
     data = {
@@ -57,11 +48,6 @@ def open_video(info_label):
             "selected_video": file_path
         }
         write_json_to_file(TEMP_JSON_FILE_PATH, data)
-
-
-def display_selected_video(file_path, info_label):
-    info_label.pack(pady=10)
-    info_label.config(text=f"Selected Video: {file_path}")
 
 
 def load_frame1():
@@ -186,8 +172,6 @@ def load_frame2():
         activeforeground="grey",
         command=lambda:load_frame1()
     ).pack(pady=10)
-
-    print(info_label)
 
     tk.Button(
         frame2,
