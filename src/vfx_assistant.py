@@ -13,6 +13,7 @@ from deepface import DeepFace
 from retinaface import RetinaFace
 from imutils.video import VideoStream
 import imutils
+# os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
 import sys
 sys.path.append('utility')
