@@ -19,8 +19,8 @@ import sys
 sys.path.append('utility')
 sys.path.append('constants')
 
-from utility.file_operations import read_json_from_file, write_json_to_file, count_files_in_directory
-from utility.tkinter_operations import clear_widgets, display_selected_video
+from utility.file_operations import read_json_from_file, write_json_to_file, count_files_in_directory, clear_temp_selected_video, extract_first_frame
+from utility.tkinter_operations import clear_widgets
 from constants.ui_operation import TEMP_JSON_FILE_PATH, SETTINGS_JSON_FILE_PATH, bg_color
 from constants.internal_config import FR_DATASET_PATH
 from utility.face_recognition_operations import fr_encoding_gen, fr_dump_encodings, fr_load_encodings
@@ -44,15 +44,62 @@ def reset_temp_file():
     write_json_to_file(TEMP_JSON_FILE_PATH, data)
 
 
-def open_video(info_label):
+def open_video(info_label, logowidget, cancel_button, process_shot_button, frame_2_label, upload_button):
     file_path = filedialog.askopenfilename(filetypes=[("Video files", "*.mp4;*.avi;*.mkv")])
     if file_path:
-        display_selected_video(file_path, info_label)
+        display_selected_video(file_path, info_label, logowidget, cancel_button, process_shot_button, frame_2_label, upload_button)
         data = {
             "selected_video": file_path
         }
         write_json_to_file(TEMP_JSON_FILE_PATH, data)
 
+
+def display_selected_video(file_path, info_label, logowidget, cancel_button, process_shot_button, frame_2_label, upload_button):
+    info_label.pack(pady=10)
+    info_label.config(text=f"Selected Video: {file_path}")
+
+    if file_path:
+        logowidget.pack_forget()
+        cancel_button.pack_forget()
+        process_shot_button.pack_forget()
+        frame_2_label.pack_forget()
+        upload_button.pack_forget()
+
+        logoimg = ImageTk.PhotoImage(image=extract_first_frame(file_path))
+        logowidget = tk.Label(
+            frame2, 
+            image = logoimg,
+            bg=bg_color
+        )
+        logowidget.image = logoimg
+        logowidget.pack()
+
+        # Process shot button display
+        tk.Button(
+            frame2,
+            text="Process Shot",
+            font=("TkHeadingFont", 25),
+            bg="#28393a",
+            fg="white",
+            cursor="hand2",
+            activebackground="#badee2",
+            activeforeground="grey",
+            command=lambda:load_frame3()
+        ).pack(pady=10)
+
+        # Cancel Button display
+        tk.Button(
+            frame2,
+            text="Cancel",
+            font=("TkHeadingFont", 10),
+            bg="#28393a",
+            fg="white",
+            cursor="hand2",
+            activebackground="#badee2",
+            activeforeground="grey",
+            command=lambda:load_frame1()
+        ).pack(pady=20)
+        
 
 def count_files_in_directory_helper(directory_path):
     # Filter the items to include only subdirectories
@@ -134,6 +181,7 @@ def load_frame2():
     clear_widgets(frame1)
     clear_widgets(settings_frame)
     clear_widgets(frame3)
+    clear_temp_selected_video(TEMP_JSON_FILE_PATH)
 
     frame2.tkraise()
     frame2.pack_propagate(False)
@@ -141,22 +189,59 @@ def load_frame2():
 
 
     # HEADING
-    tk.Label(
+    frame_2_heading = tk.Label(
         frame2, 
         text = "AI VFX ASSISTANT UPLOAD",
         bg = bg_color,
         fg = "white",
         font = ('TkHeadingFont', 40)
-    ).pack(pady=20)
+    )
+    frame_2_heading.pack(pady=20)
 
 
-    tk.Label(
+    frame_2_label = tk.Label(
         frame2,
         text="Please select a shot for processing and click the Process Shot button!",
         font=('Leelawadee', 14),
         bg = bg_color,
         fg = "white"
-    ).pack(pady=5)
+    )
+    frame_2_label.pack(pady=5)
+
+    # Image init
+    logoimg = ImageTk.PhotoImage(file='internal/local_assets/images/logo2_1.jpg')
+    logowidget = tk.Label(
+        frame2, 
+        image = logoimg,
+        bg=bg_color
+    )
+    logowidget.image = logoimg
+
+    # Cancel Button init
+    cancel_button = tk.Button(
+        frame2,
+        text="Cancel",
+        font=("TkHeadingFont", 10),
+        bg="#28393a",
+        fg="white",
+        cursor="hand2",
+        activebackground="#badee2",
+        activeforeground="grey",
+        command=lambda:load_frame1()
+    )
+
+    # Process shot button
+    process_shot_button = tk.Button(
+        frame2,
+        text="Process Shot",
+        font=("TkHeadingFont", 25),
+        bg="#28393a",
+        fg="white",
+        cursor="hand2",
+        activebackground="#badee2",
+        activeforeground="grey",
+        command=lambda:load_frame3()
+    )
 
     # SHOT SELECTION
     info_label = tk.Label(frame2, text="Selected Video: None")
@@ -169,44 +254,18 @@ def load_frame2():
         cursor="hand2",
         activebackground="#badee2",
         activeforeground="grey",
-        command=lambda:open_video(info_label)
+        command=lambda:open_video(info_label, logowidget, cancel_button, process_shot_button, frame_2_label, upload_button)
     )
     upload_button.pack(pady=20)
 
     # Display Image
-    logoimg = ImageTk.PhotoImage(file='internal/local_assets/images/logo2_1.jpg')
-    logowidget = tk.Label(
-        frame2, 
-        image = logoimg,
-        bg=bg_color
-    )
-    logowidget.image = logoimg
     logowidget.pack()
 
-    # Buttons
-    tk.Button(
-        frame2,
-        text="Cancel",
-        font=("TkHeadingFont", 10),
-        bg="#28393a",
-        fg="white",
-        cursor="hand2",
-        activebackground="#badee2",
-        activeforeground="grey",
-        command=lambda:load_frame1()
-    ).pack(pady=10)
+    # Display Process shot button
+    process_shot_button.pack(pady=10)
 
-    tk.Button(
-        frame2,
-        text="Process Shot",
-        font=("TkHeadingFont", 25),
-        bg="#28393a",
-        fg="white",
-        cursor="hand2",
-        activebackground="#badee2",
-        activeforeground="grey",
-        command=lambda:load_frame3()
-    ).pack(pady=5)
+    # Display Cancel button
+    cancel_button.pack(pady=10)
 
 
 def load_frame3():

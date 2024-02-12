@@ -1,6 +1,8 @@
 import json
 import os
 import shutil
+import cv2
+from PIL import Image
 
 
 def read_json_from_file(file_path):
@@ -38,3 +40,40 @@ def delete_folder(path):
     print(f"Deleted folder and contents: {path}")
   except Exception as e:
     print(f"Error deleting folder: {e}")
+
+
+def clear_temp_selected_video(path):
+   data = read_json_from_file(path)
+   data['selected_video'] = ""
+   write_json_to_file(path, data)
+
+
+def extract_first_frame(video_path):
+  # Open the video file
+  cap = cv2.VideoCapture(video_path)
+  
+  # Check if the video file is opened successfully
+  if not cap.isOpened():
+      print("Error: Unable to open video file.")
+      return None
+  
+  # Read the first frame
+  ret, frame = cap.read()
+  
+  # Check if the frame is read successfully
+  if not ret:
+      print("Error: Unable to read the first frame.")
+      return None
+  
+  # Convert the frame from BGR to RGB (OpenCV uses BGR by default)
+  frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+  
+  # Convert the frame to PIL Image format
+  pil_image = Image.fromarray(frame_rgb)
+  pil_image_resized = pil_image.resize((400, 300))
+    
+  
+  # Close the video file
+  cap.release()
+  
+  return pil_image_resized
