@@ -1,14 +1,33 @@
 from imutils import paths
-from constants.internal_config import FR_DETECTION_METHOD, FR_DATASET_PATH, FR_ENCODINGS_DUMP_PATH, \
-                                      VERY_HIGH_MATCH_COUNT
-from utility.file_operations import read_json_from_file
-from constants.ui_operation import SETTINGS_JSON_FILE_PATH
+# import sys
+# insertPath = ""
+# for path in sys.path:
+#   if path.endswith('\\src\\utility'):
+#     insertPath = '\\src\\constants'.join(path.rsplit('\\src\\utility', 1))
+# sys.path.append(insertPath)
+
+
+# from constants.internal_config import FR_DETECTION_METHOD, FR_DATASET_PATH, FR_ENCODINGS_DUMP_PATH, \
+#                                       VERY_HIGH_MATCH_COUNT
+# from utility.file_operations import read_json_from_file
+# from constants.ui_operation import SETTINGS_JSON_FILE_PATH
 
 import os
 import face_recognition
 import cv2
 import pickle
+import json 
 
+# CONSTANTS - TODO: Fix imports for constants and utility
+FR_DETECTION_METHOD = 'hog'
+FR_DATASET_PATH = '../../dataset' #this is diff compared to the constants file
+FR_ENCODINGS_DUMP_PATH = '../../fr_encodings.pickle' # this is changed compared to the constants file
+VERY_HIGH_MATCH_COUNT = 1000000
+SETTINGS_JSON_FILE_PATH = 'internal/json/settings.json'
+def read_json_from_file(file_path):
+    with open(file_path, 'r') as file:
+        return json.load(file)
+    
 
 def fr_encoding_gen():
   '''

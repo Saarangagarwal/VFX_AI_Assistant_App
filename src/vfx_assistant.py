@@ -7,23 +7,23 @@ import argparse
 import pickle
 import cv2
 import os
-import face_recognition
 import time
 from deepface import DeepFace
 from retinaface import RetinaFace
 from imutils.video import VideoStream
 import imutils
-# os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+import subprocess
+import threading
+from tkinter import ttk
 
 import sys
-sys.path.append('utility')
 sys.path.append('constants')
+sys.path.append('scripts')
 
 from utility.file_operations import read_json_from_file, write_json_to_file, count_files_in_directory, clear_temp_selected_video, extract_first_frame
 from utility.tkinter_operations import clear_widgets
 from constants.ui_operation import TEMP_JSON_FILE_PATH, SETTINGS_JSON_FILE_PATH, bg_color
 from constants.internal_config import FR_DATASET_PATH
-from utility.face_recognition_operations import fr_encoding_gen, fr_dump_encodings, fr_load_encodings
 
 # functions
 def import_settings():
@@ -113,11 +113,38 @@ def count_files_in_directory_helper(directory_path):
 
 
 def generate_face_recognition_encodings():
-    # call the generate encoding function for face recognition algorithm
-    knownNames, knownEncodings = fr_encoding_gen()
 
-    # save encodings to the file system
-    fr_dump_encodings(knownEncodings, knownNames)
+    def run_subprocess(progressbar):
+        process = subprocess.run(["bash", "-c", "src/scripts/generate_fr_encodings.sh arguments"], capture_output=True, text=True)
+        print(process)
+        progressbar.stop()
+        progressbar.place_forget()
+
+        # Success pop-up display and dismiss
+        def dismiss_popup(popup):
+            popup.destroy()
+
+        popup = tk.Toplevel()
+        popup.title("Success!")
+
+        screen_width = popup.winfo_screenwidth()
+        screen_height = popup.winfo_screenheight()
+        x = (screen_width - 200) // 2  # 200 is the width of the pop-up window
+        y = (screen_height - 100) // 2  # 100 is the height of the pop-up window
+        popup.geometry(f"300x200+{x}+{y}")  # Set the geometry of the pop-up window
+        
+        label = tk.Label(popup, text="Encodings generated successfully!")
+        label.pack(pady=10)
+        dismiss_button = tk.Button(popup, text="Dismiss", command=lambda: dismiss_popup(popup))
+        dismiss_button.pack()
+
+    progressbar = ttk.Progressbar(settings_frame, mode="determinate")
+    progressbar.place(relx=0.35, rely=0.75, width=300)
+
+    progress_thread = threading.Thread(target=run_subprocess, args=(progressbar,))
+    progress_thread.start()
+    # Start the progress bar animation with 2000 ms interval
+    progressbar.start(2000)
 
 
 def load_frame1():
