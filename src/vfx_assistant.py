@@ -148,6 +148,7 @@ def load_frame1():
 
     if not initial_file_scan:
         initial_file_scan = True
+        write_json_to_file(TRAIN_COUNT_MAP_FILE_PATH, {})
         subprocess.run(["bash", "-c", "src/scripts/trigger_file_counter.sh arguments"], capture_output=True, text=True)
     
     # HEADING
@@ -403,7 +404,7 @@ def load_settings_frame():
 
 # GLOBAL VARS
 settings = import_settings()
-TRAIN_COUNT_MAP = {}
+TRAIN_COUNT_MAP_FILE_PATH = 'internal/json/train_count_map.json'
 initial_file_scan = False
 
 # initialize app
