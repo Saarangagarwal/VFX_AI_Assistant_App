@@ -312,6 +312,22 @@ def load_frame3():
     if temp_data['selected_video'] == "":
         load_frame1()
 
+    def run_recognition_subprocess(progressbar):
+        kk = subprocess.run(["bash", "-c", "src/scripts/trigger_frame_recognizer.sh arguments"], capture_output=True, text=True)
+        print(kk)
+        # import time;time.sleep(5)
+        progressbar.stop()
+        progressbar.place_forget()
+        load_frame1()
+
+    progressbar = ttk.Progressbar(frame3, mode="determinate")
+    progressbar.place(relx=0.35, rely=0.75, width=300)
+
+    progress_thread = threading.Thread(target=run_recognition_subprocess, args=(progressbar,))
+    progress_thread.start()
+    # Start the progress bar animation with 2000 ms interval
+    progressbar.start(2000)
+
 
 
 
