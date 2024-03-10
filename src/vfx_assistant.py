@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import filedialog
 from PIL import ImageTk, Image
 import json
+import imutils
 from imutils import paths
 import argparse
 import pickle
@@ -11,7 +12,6 @@ import time
 from deepface import DeepFace
 from retinaface import RetinaFace
 from imutils.video import VideoStream
-import imutils
 import subprocess
 import threading
 from tkinter import ttk
@@ -99,24 +99,12 @@ def display_selected_video(file_path, info_label, logowidget, cancel_button, pro
             activeforeground="grey",
             command=lambda:load_frame1()
         ).pack(pady=20)
-        
-
-def count_files_in_directory_helper(directory_path):
-    # Filter the items to include only subdirectories
-    items = os.listdir(FR_DATASET_PATH)
-    actor_folders = [item for item in items if os.path.isdir(os.path.join(FR_DATASET_PATH, item))]
-
-    for actor in actor_folders:
-        if actor not in [".ipynb_checkpoints"]:
-            num_files = count_files_in_directory(f"{FR_DATASET_PATH}/{actor}")
-            TRAIN_COUNT_MAP[actor] = num_files
 
 
 def generate_face_recognition_encodings():
 
     def run_subprocess(progressbar):
-        process = subprocess.run(["bash", "-c", "src/scripts/generate_fr_encodings.sh arguments"], capture_output=True, text=True)
-        print(process)
+        subprocess.run(["bash", "-c", "src/scripts/generate_fr_encodings.sh arguments"], capture_output=True, text=True)
         progressbar.stop()
         progressbar.place_forget()
 
@@ -156,6 +144,11 @@ def load_frame1():
     frame1.pack_propagate(False)
 
     reset_temp_file()
+    global initial_file_scan
+
+    if not initial_file_scan:
+        initial_file_scan = True
+        subprocess.run(["bash", "-c", "src/scripts/trigger_file_counter.sh arguments"], capture_output=True, text=True)
     
     # HEADING
     tk.Label(
@@ -411,6 +404,7 @@ def load_settings_frame():
 # GLOBAL VARS
 settings = import_settings()
 TRAIN_COUNT_MAP = {}
+initial_file_scan = False
 
 # initialize app
 root = tk.Tk()
