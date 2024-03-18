@@ -9,8 +9,8 @@ import pickle
 import cv2
 import os
 import time
-from deepface import DeepFace
-from retinaface import RetinaFace
+# from deepface import DeepFace
+# from retinaface import RetinaFace
 from imutils.video import VideoStream
 import subprocess
 import threading
@@ -104,7 +104,8 @@ def display_selected_video(file_path, info_label, logowidget, cancel_button, pro
 def generate_face_recognition_encodings():
 
     def run_subprocess(progressbar):
-        subprocess.run(["bash", "-c", "src/scripts/generate_fr_encodings.sh arguments"], capture_output=True, text=True)
+        kk = subprocess.run(["bash", "-c", "src/scripts/generate_fr_encodings.sh arguments"], capture_output=True, text=True)
+        print(kk)
         progressbar.stop()
         progressbar.place_forget()
 
@@ -139,6 +140,7 @@ def load_frame1():
     clear_widgets(settings_frame)
     clear_widgets(frame2)
     clear_widgets(frame3)
+    clear_widgets(frame4)
 
     frame1.tkraise()
     frame1.pack_propagate(False)
@@ -201,6 +203,7 @@ def load_frame2():
 
     clear_widgets(frame1)
     clear_widgets(settings_frame)
+    clear_widgets(frame4)
     clear_widgets(frame3)
     clear_temp_selected_video(TEMP_JSON_FILE_PATH)
 
@@ -293,6 +296,7 @@ def load_frame3():
     clear_widgets(frame1)
     clear_widgets(frame2)
     clear_widgets(settings_frame)
+    clear_widgets(frame4)
 
     frame3.tkraise()
     frame3.pack_propagate(False)
@@ -307,34 +311,69 @@ def load_frame3():
         font = ('TkHeadingFont', 40)
     ).pack(pady=20)
 
-    # extract video to process
-    temp_data = read_json_from_file(TEMP_JSON_FILE_PATH)
-    if temp_data['selected_video'] == "":
-        load_frame1()
-
     def run_recognition_subprocess(progressbar):
         kk = subprocess.run(["bash", "-c", "src/scripts/trigger_frame_recognizer.sh arguments"], capture_output=True, text=True)
         print(kk)
         # import time;time.sleep(5)
         progressbar.stop()
         progressbar.place_forget()
+        load_frame4()
+
+    # extract video to process
+    temp_data = read_json_from_file(TEMP_JSON_FILE_PATH)
+    write_json_to_file(RECOGNIZED_PEOPLE_PATH, {"recognized_people": []})
+    if temp_data['selected_video'] == "":
         load_frame1()
+    else:
+        progressbar = ttk.Progressbar(frame3, mode="determinate")
+        progressbar.place(relx=0.35, rely=0.75, width=300)
 
-    progressbar = ttk.Progressbar(frame3, mode="determinate")
-    progressbar.place(relx=0.35, rely=0.75, width=300)
-
-    progress_thread = threading.Thread(target=run_recognition_subprocess, args=(progressbar,))
-    progress_thread.start()
-    # Start the progress bar animation with 2000 ms interval
-    progressbar.start(2000)
+        progress_thread = threading.Thread(target=run_recognition_subprocess, args=(progressbar,))
+        progress_thread.start()
+        # Start the progress bar animation with 2000 ms interval
+        progressbar.start(2000)
 
 
+def load_frame4():
+    clear_widgets(frame1)
+    clear_widgets(frame2)
+    clear_widgets(frame3)
+    clear_widgets(settings_frame)
+
+    frame4.tkraise()
+    frame4.pack_propagate(False)
+    frame4.grid(row=0, column=0)
+
+    # Heading
+    tk.Label(
+        frame4, 
+        text = "AI VFX ASSISTANT RESULTS",
+        bg = bg_color,
+        fg = "white",
+        font = ('TkHeadingFont', 40)
+    ).pack(pady=20)
+
+    tk.Button(
+        frame4,
+        text="Back to Home",
+        font=("TkHeadingFont", 10),
+        bg="#28393a",
+        fg="white",
+        cursor="hand2",
+        activebackground="#badee2",
+        activeforeground="grey",
+        command=lambda:load_frame1()
+    ).pack()
+
+    recognized_people = read_json_from_file(RECOGNIZED_PEOPLE_PATH)["recognized_people"]
+    print(recognized_people)
 
 
 def load_settings_frame():
     clear_widgets(frame1)
     clear_widgets(frame2)
     clear_widgets(frame3)
+    clear_widgets(frame4)
 
     settings_frame.tkraise()
     settings_frame.pack_propagate(False)
@@ -421,6 +460,7 @@ def load_settings_frame():
 # GLOBAL VARS
 settings = import_settings()
 TRAIN_COUNT_MAP_FILE_PATH = 'internal/json/train_count_map.json'
+RECOGNIZED_PEOPLE_PATH = 'internal/json/recognized_people.json'
 initial_file_scan = False
 
 # initialize app
@@ -431,6 +471,7 @@ root.title("AI VFX Assistant")
 frame1 = tk.Frame(root, width=1000, height=600, bg=bg_color)
 frame2 = tk.Frame(root, width=1000, height=600, bg=bg_color)
 frame3 = tk.Frame(root, width=1000, height=600, bg=bg_color)
+frame4 = tk.Frame(root, width=1000, height=600, bg=bg_color)
 settings_frame = tk.Frame(root, width=1000, height=600, bg=bg_color)
 
 frame1.grid(row=0, column=0)

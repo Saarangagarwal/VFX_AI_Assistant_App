@@ -2,11 +2,14 @@ import cv2
 import json 
 import os 
 import shutil
+from ensemble_face_recognition import image_face_recognition
+from file_operations import delete_folder, read_json_from_file, write_json_to_file
 
 # global vars
 SHOT_LOCATION = '../../internal/json/temp.json'
 FRAME_CONTROL = 2
 TEMP_FRAME_DATA_PATH = '../../internal/temp_frame_data'
+RECOGNIZED_PEOPLE_PATH = '../../internal/json/recognized_people.json'
 
 ## CREATE FRAMES FROM A GIVEN SHOT
 def create_frame_from_shot(shot_path):
@@ -62,22 +65,6 @@ def create_frame_from_shot(shot_path):
   return frame_paths
 
 
-def read_json_from_file(file_path):
-    with open(file_path, 'r') as file:
-        return json.load(file)
-
-
-def delete_folder(path):
-  '''
-    Used to delete a folder and its contents, given the directory path
-  '''
-  try:
-    shutil.rmtree(path)
-    print(f"Deleted folder and contents: {path}")
-  except Exception as e:
-    print(f"Error deleting folder: {e}")
-    
-
 ## RECOGNIZE ACTORS USING THAT SHOT AND RETURN
 def shot_face_recognition():
   '''
@@ -87,18 +74,23 @@ def shot_face_recognition():
   # create frames from the shot
   shot_path = read_json_from_file(SHOT_LOCATION)['selected_video']
   frame_paths = create_frame_from_shot(shot_path)
-  delete_folder(TEMP_FRAME_DATA_PATH)
 
-#   recognized_people = set()
-#   # go through frames and perform recognition
-#   for frame_path in frame_paths:
-#     people = image_face_recognition(frame_path)
-#     for person in people:
-#       if person != "Unknown":
-#         recognized_people.add(person)
+  recognized_people = set()
+  # go through frames and perform recognition
+  for frame_path in frame_paths:
+    people = image_face_recognition(frame_path)
+    for person in people:
+      if person != "Unknown":
+        recognized_people.add(person)
 
-#   # clean-up
-#   delete_folder(TEMP_FRAME_DATA_PATH)
+  # clean-up
+  # print('deleting folder....')
+  # delete_folder(TEMP_FRAME_DATA_PATH)
+
+  recognized_people_json = {
+    "recognized_people": list(recognized_people)
+  }
+  write_json_to_file(RECOGNIZED_PEOPLE_PATH, recognized_people_json)
 
 #   return list(recognized_people)
   
