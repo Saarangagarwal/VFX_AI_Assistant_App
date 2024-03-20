@@ -2,12 +2,27 @@ from retinaface import RetinaFace
 from deepface import DeepFace
 from file_operations import write_json_to_file, read_json_from_file
 import sys
-import datetime
+import re
+import os
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS2 # or only MEIPASS
+    except Exception:
+        print("UGHH in exception")
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 # globals
 ALGO_MODELS = [ "VGG-Face", "Facenet", "Facenet512", "OpenFace", "DeepFace", "DeepID", "ArcFace", "Dlib", "SFace" ]
 VGG_FACE_MODEL = ALGO_MODELS[0]
-VGG_DATASET_PATH = '../../dataset'
+# VGG_DATASET_PATH = resource_path('dataset')
+# VGG_DATASET_PATH = VGG_DATASET_PATH.replace('\\', '/')
+VGG_DATASET_PATH = 'C:/Users/agarw/Desktop/1Uwaterloo/4A/URA with Lesley Istead/VFX Assistant App/dataset'
+# VGG_DATASET_PATH = resource_path('dataset').replace('\\n', '/').replace('\n', '/').replace('\\', '/')
+# VGG_DATASET_PATH = 'dataset'
+# print("RURU ", resource_path('dataset').replace('\\n', '/').replace('\n', '/').replace('\\', '/'))
 DEEP_FACE_TEMP_PATH = '../../internal/json/deep_face_temp.json'
 
 
@@ -19,7 +34,6 @@ def vgg_recognition(testImage):
   '''
   MODEL = VGG_FACE_MODEL
   faces = RetinaFace.extract_faces(testImage)
-  print('faces successful SAA')
   # faces1 = RetinaFace.detect_faces(testImage)
   # print(faces1)
   # # Loop through the detected faces
@@ -43,11 +57,12 @@ def vgg_recognition(testImage):
 
   for face in faces:
     kk = DeepFace.find(face, db_path = VGG_DATASET_PATH, model_name = MODEL, enforce_detection = False)[0]
-
+    print("$$$&&&  DEEP FACE SUCCESS &&&$$$ ")
     actor_hash = {}
     for _, row in kk.iterrows():
       identity = row['identity']
-      actor = identity.split("/")
+      actor = re.split(r'[\/\\\\]+', identity)
+      # print(identity, actor, "$$$$#\n")
       actor_hash[actor[len(actor) - 2]] = 1 + actor_hash.get(actor[len(actor) - 2], 0)
 
     if actor_hash:
@@ -70,5 +85,7 @@ def vgg_recognition(testImage):
   # return matches, match_counts
 
 if __name__ == '__main__':
-  vgg_recognition(sys.argv[1])
+  vgg_recognition(sys.argv[1]) #works
+  # vgg_recognition("C:/Users/agarw/testimgg.jpg")
   # vgg_recognition('../../internal/temp_frame_data/frame-0.jpg')
+  # vgg_recognition('C:/Users/agarw/Desktop/1Uwaterloo/4A/URA with Lesley Istead/VFX Assistant App/internal/temp_frame_data/frame-0.jpg')

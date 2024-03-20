@@ -36,6 +36,7 @@ def image_face_recognition(input_image):
   subprocess.run(["bash", "-c", f"../scripts/trigger_retina_face.sh {input_image}"], capture_output=True, text=True)
   retina_num_faces = read_json_from_file(RETINA_FACE_TEMP_PATH)["face_count"]
   TRAIN_COUNT_MAP = read_json_from_file(TRAIN_COUNT_MAP_PATH)['TRAIN_COUNT_MAP']
+  print("RETINAAAAA DONE ", retina_num_faces, "number ONLY!!")
 
   if fr_num_faces != retina_num_faces:
     # use vgg... use face_recognition if confidence in outcome is low
@@ -46,6 +47,7 @@ def image_face_recognition(input_image):
       "vgg_matches_op": [],
       "vgg_matches_count_op": []
     }
+    print("HOOOOHAHAHA")
     write_json_to_file(DEEP_FACE_TEMP_PATH, vgg_temp_json)
     kk = subprocess.run(["bash", "-c", f"../scripts/trigger_deep_face.sh {input_image}"], capture_output=True, text=True)
     print(kk)
