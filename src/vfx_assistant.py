@@ -141,6 +141,7 @@ def load_frame1():
     clear_widgets(frame2)
     clear_widgets(frame3)
     clear_widgets(frame4)
+    clear_widgets(about_frame)
 
     frame1.tkraise()
     frame1.pack_propagate(False)
@@ -175,6 +176,18 @@ def load_frame1():
     # OPTIONS
     tk.Button(
         frame1,
+        text="About",
+        font=("TkHeadingFont", 19),
+        bg="#28393a",
+        fg="white",
+        cursor="hand2",
+        activebackground="#badee2",
+        activeforeground="grey",
+        command=lambda:load_about_frame()
+    ).pack(pady=10)
+
+    tk.Button(
+        frame1,
         text="Settings",
         font=("TkHeadingFont", 20),
         bg="#28393a",
@@ -183,7 +196,7 @@ def load_frame1():
         activebackground="#badee2",
         activeforeground="grey",
         command=lambda:load_settings_frame()
-    ).pack(pady=40)
+    ).pack(pady=10)
 
     tk.Button(
         frame1,
@@ -205,6 +218,7 @@ def load_frame2():
     clear_widgets(settings_frame)
     clear_widgets(frame4)
     clear_widgets(frame3)
+    clear_widgets(about_frame)
     clear_temp_selected_video(TEMP_JSON_FILE_PATH)
 
     frame2.tkraise()
@@ -297,6 +311,7 @@ def load_frame3():
     clear_widgets(frame2)
     clear_widgets(settings_frame)
     clear_widgets(frame4)
+    clear_widgets(about_frame)
 
     frame3.tkraise()
     frame3.pack_propagate(False)
@@ -356,6 +371,7 @@ def load_frame4():
     clear_widgets(frame2)
     clear_widgets(frame3)
     clear_widgets(settings_frame)
+    clear_widgets(about_frame)
 
     frame4.tkraise()
     frame4.pack_propagate(False)
@@ -391,6 +407,7 @@ def load_settings_frame():
     clear_widgets(frame2)
     clear_widgets(frame3)
     clear_widgets(frame4)
+    clear_widgets(about_frame)
 
     settings_frame.tkraise()
     settings_frame.pack_propagate(False)
@@ -473,6 +490,55 @@ def load_settings_frame():
     ).pack(pady=20)
 
 
+def load_about_frame():
+    clear_widgets(frame1)
+    clear_widgets(frame2)
+    clear_widgets(frame3)
+    clear_widgets(frame4)
+    clear_widgets(settings_frame)
+
+    about_frame.tkraise()
+    about_frame.pack_propagate(False)
+    about_frame.grid(row=0, column=0)
+
+    # Heading
+    tk.Label(
+        about_frame, 
+        text = "ABOUT AI VFX ASSISTANT",
+        bg = bg_color,
+        fg = "white",
+        font = ('TkHeadingFont', 40)
+    ).pack(pady=20)
+
+    # Create a paragraph of text
+    text = """Welcome to the AI (Artificial Intelligence) Visual Effects (VFX) Assistant. This tool is 
+designed to assist VFX editors in speeding up asset..... face recognition.... What makes this tool special
+is its ability to add new faces and learn on the go as you use it. Don't want to get prompted to help the 
+tool get better? No worries, enabling silent mode in the settings menu allows for uninterrupted use of the 
+tool. ....talk about embeddings...out of the box... can be generated.... talk about how to select shot and 
+how the workflow goes along. At the end, also mention the developer/professor.............................
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. 
+Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet. 
+Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta. Mauris massa. 
+Vestibulum lacinia arcu eget nulla. Class aptent taciti sociosqu ad litora torquent per conubia nostra, 
+per inceptos himenaeos. Curabitur sodales ligula in libero. Sed dignissim lacinia nunc."""
+
+    # Create a Label to display the paragraph of text
+    text_label = tk.Label(about_frame, text=text, justify="left", font=("Leelawadee", 12))
+    text_label.pack()
+
+    # Back button
+    tk.Button(
+        about_frame,
+        text="Back",
+        font=("TkHeadingFont", 18),
+        bg="#28393a",
+        fg="white",
+        cursor="hand2",
+        activebackground="#badee2",
+        activeforeground="grey",
+        command=lambda:load_frame1()
+    ).pack(pady=20)
 
 # GLOBAL VARS
 settings = import_settings()
@@ -490,6 +556,8 @@ frame2 = tk.Frame(root, width=1000, height=600, bg=bg_color)
 frame3 = tk.Frame(root, width=1000, height=600, bg=bg_color)
 frame4 = tk.Frame(root, width=1000, height=600, bg=bg_color)
 settings_frame = tk.Frame(root, width=1000, height=600, bg=bg_color)
+about_frame = tk.Frame(root, width=1000, height=600, bg=bg_color)
+
 
 frame1.grid(row=0, column=0)
 
