@@ -85,7 +85,7 @@ def shot_face_recognition():
 
   # clean-up
   # print('deleting folder....')
-  # delete_folder(TEMP_FRAME_DATA_PATH)
+  delete_folder(TEMP_FRAME_DATA_PATH)
 
   recognized_people_json = {
     "recognized_people": list(recognized_people)

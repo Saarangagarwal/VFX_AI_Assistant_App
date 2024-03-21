@@ -1,4 +1,8 @@
 from imutils import paths
+import tkinter as tk
+from tkinter import ttk, simpledialog
+from PIL import ImageTk
+from PIL import Image as TkImageLib
 # import sys
 # insertPath = ""
 # for path in sys.path:
@@ -36,7 +40,14 @@ def read_json_from_file(file_path):
     with open(file_path, 'r') as file:
         return json.load(file)
     
+
+def write_json_to_file(file_path, data):
+    with open(file_path, 'w') as file:
+        json.dump(data, file, indent=2)
+
+
 TRAIN_COUNT_MAP = read_json_from_file(TRAIN_COUNT_MAP_PATH)['TRAIN_COUNT_MAP']
+
 
 def delete_folder(path):
   '''
@@ -128,7 +139,7 @@ def fr_recognize(data, testImage):
     Function to do face recognition using the face recognition model
   '''
   DETECTION_METHOD = FR_DETECTION_METHOD
-  SILENT_MODE = read_json_from_file(SETTINGS_JSON_FILE_PATH)['SILENT_MODE']
+  SILENT_MODE = True if read_json_from_file(SETTINGS_JSON_FILE_PATH)['SILENT_MODE'] == "True" else False
   # VERY_HIGH_MATCH_COUNT = VERY_HIGH_MATCH_COUNT
   TRAIN_COUNT_MAP = read_json_from_file(TRAIN_COUNT_MAP_PATH)['TRAIN_COUNT_MAP']
 
@@ -144,9 +155,10 @@ def fr_recognize(data, testImage):
   # initialize the list of names for each face detected
   names = []
   match_counts = []
-
+  print("HEYAAAAA IM HERE!")
   # loop over the facial embeddings
   for e_i, encoding in enumerate(encodings):
+      print("Looping over encodings...!")
       # attempt to match each face in the input to our known encodings
       # This function returns a list of True / False  values, one for each image in our dataset.
       matches = face_recognition.compare_faces(data["encodings"], encoding)
@@ -158,6 +170,7 @@ def fr_recognize(data, testImage):
       if True in matches:
           # find the indexes of all matched faces then initialize a dictionary to count
           # the total number of times each face was matched
+          print("True found in matches")
           matchedIdxs = [i for (i, b) in enumerate(matches) if b]
           counts = {}
 
@@ -208,18 +221,54 @@ def fr_recognize(data, testImage):
   #     y = top - 15 if top - 15 > 15 else top + 15
   #     cv2.putText(image, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
   #                 0.75, (0, 255, 0), 2)
+  
+  def show_popup_with_image(root, img_path):
+    class PopupWindow(simpledialog.Dialog):
+        def body(self, master):
+            try:
+                # Load and display the image
+                image = TkImageLib.open(img_path)
+                photo = ImageTk.PhotoImage(image)
+                label = tk.Label(master, image=photo)
+                label.image = photo
+                label.pack()
+            except Exception as e:
+                print("Error loading image:", e)
+                print("ERROR in NON_silent mode pop-up")
+
+            # Add an Entry widget
+            tk.Label(master, text="The above individual wasn't identified. Please help me by identifying them!").pack(pady=10)
+            tk.Label(master, text=f"If you don't know their name or do not wish to identify them, type \"{DECLINE_TO_IDENTIFY}\"").pack()
+            self.entry = ttk.Entry(master, width=50)
+            self.entry.pack(pady=10)
+        
+        def apply(self):
+            self.result = self.entry.get()
+
+    popup = PopupWindow(root)
+    # print("User input:", popup.result)
+    return popup.result
 
   if not SILENT_MODE and os.path.exists(TEMP_IMG_STORAGE_PATH):
     # GIVES errors on google colab
     # unknown_people_identification_message()
-    print("The following people weren't identified. Please help me by identifying them.")
-    print("The image file names are displayed below. The files are located in ", TEMP_IMG_STORAGE_PATH)
-    print(f"If you don't know their name or do not wish to identify them, type \"{DECLINE_TO_IDENTIFY}\"")
+    # print("The following people weren't identified. Please help me by identifying them.")
+    # print("The image file names are displayed below. The files are located in ", TEMP_IMG_STORAGE_PATH)
+    # print(f"If you don't know their name or do not wish to identify them, type \"{DECLINE_TO_IDENTIFY}\"")
     file_list = os.listdir(TEMP_IMG_STORAGE_PATH)
     encoded_data = fr_load_encodings()
     for file_name in file_list:
       if file_name.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp')):
-        identity_input = input(f"Please identify {file_name} in the image above: ")
+        # identity_input = input(f"Please identify {file_name} in the image above: ")
+
+        identity_input = ""
+        new_win = tk.Tk()
+        new_win.title("Face recognition Pop-up! Help me help you...")
+        new_win.withdraw()
+        # identity_input = simpledialog.askstring("Enter Value", "Please enter a yedghf", parent = new_win)
+        identity_input = show_popup_with_image(new_win, f'../../internal/temp_img_data/{file_name}')
+        new_win.destroy()
+
         if identity_input != DECLINE_TO_IDENTIFY:
           if identity_input.lower() not in os.listdir(FR_DATASET_PATH):
             # create a new directory and insert the image
@@ -237,6 +286,7 @@ def fr_recognize(data, testImage):
           # add this to "names" and "match_counts"
           names.append(identity_input.lower())
           match_counts.append(VERY_HIGH_MATCH_COUNT)
+          write_json_to_file(TRAIN_COUNT_MAP_PATH, {"TRAIN_COUNT_MAP": TRAIN_COUNT_MAP})
 
     # replace existing encoding
     fr_dump_data(encoded_data)

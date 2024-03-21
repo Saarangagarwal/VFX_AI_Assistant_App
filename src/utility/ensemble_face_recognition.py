@@ -70,6 +70,8 @@ def image_face_recognition(input_image):
     # if vgg is not perfect here, then combine with high acceptance results from face recognition
     fr_encoding_data = fr_load_encodings()
     fr_matches, fr_match_counts = fr_recognize(fr_encoding_data, input_image)
+    TRAIN_COUNT_MAP = read_json_from_file(TRAIN_COUNT_MAP_PATH)['TRAIN_COUNT_MAP']
+
     for i, count in enumerate(fr_match_counts):
       person = fr_matches[i]
       if person != "Unknown" and count >= (STRICT_ACCEPTANCE_PARAMETER * TRAIN_COUNT_MAP[person]) and person not in vgg_matches_copy:
@@ -81,6 +83,8 @@ def image_face_recognition(input_image):
     # use face_recognition and then vgg if required
     fr_encoding_data = fr_load_encodings()
     fr_matches, fr_match_counts = fr_recognize(fr_encoding_data, input_image)
+    TRAIN_COUNT_MAP = read_json_from_file(TRAIN_COUNT_MAP_PATH)['TRAIN_COUNT_MAP']
+
     fr_flagged_people = {}
     for i, count in enumerate(fr_match_counts):
       person = fr_matches[i]
