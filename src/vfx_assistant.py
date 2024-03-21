@@ -325,6 +325,17 @@ def load_frame3():
     if temp_data['selected_video'] == "":
         load_frame1()
     else:
+        # display the selected video
+        logoimg = ImageTk.PhotoImage(image=extract_first_frame(temp_data['selected_video']))
+        logowidget = tk.Label(
+            frame3, 
+            image = logoimg,
+            bg=bg_color
+        )
+        logowidget.image = logoimg
+        logowidget.pack()
+
+        # display progress bar
         progressbar = ttk.Progressbar(frame3, mode="determinate")
         progressbar.place(relx=0.35, rely=0.75, width=300)
 
@@ -332,6 +343,12 @@ def load_frame3():
         progress_thread.start()
         # Start the progress bar animation with 2000 ms interval
         progressbar.start(2000)
+
+        # display text below label
+        progress_label = tk.Label(frame3, text="Face recognition in progress using the magic of AI", anchor="w", font=('Leelawadee', 10))
+        progress_label.place(relx=0.35, rely=0.8)
+        progress_label = tk.Label(frame3, text="Note: You may see pop-ups if silent mode is disabled", anchor="w", font=('Leelawadee', 10))
+        progress_label.place(relx=0.34, rely=0.83)
 
 
 def load_frame4():
