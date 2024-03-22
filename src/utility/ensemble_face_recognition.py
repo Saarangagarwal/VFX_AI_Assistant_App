@@ -31,10 +31,7 @@ def image_face_recognition(input_image):
   fr_num_faces = len(boxes)
   print("$$$$$$FR FACE NUM$$$$$$$$$ is ", fr_num_faces)
 
-  # run subprocess to get number of faces from retina face
-  write_json_to_file(RETINA_FACE_TEMP_PATH, {"face_count": 0})
-  subprocess.run(["bash", "-c", f"../scripts/trigger_retina_face.sh {input_image}"], capture_output=True, text=True)
-  retina_num_faces = read_json_from_file(RETINA_FACE_TEMP_PATH)["face_count"]
+  retina_num_faces = read_json_from_file(RETINA_FACE_TEMP_PATH)[input_image]
   TRAIN_COUNT_MAP = read_json_from_file(TRAIN_COUNT_MAP_PATH)['TRAIN_COUNT_MAP']
   print("RETINAAAAA DONE ", retina_num_faces, "number ONLY!!")
 

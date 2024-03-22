@@ -2,6 +2,7 @@ import cv2
 import json 
 import os 
 import shutil
+import subprocess
 from ensemble_face_recognition import image_face_recognition
 from file_operations import delete_folder, read_json_from_file, write_json_to_file
 
@@ -10,6 +11,7 @@ SHOT_LOCATION = '../../internal/json/temp.json'
 FRAME_CONTROL = 2
 TEMP_FRAME_DATA_PATH = '../../internal/temp_frame_data'
 RECOGNIZED_PEOPLE_PATH = '../../internal/json/recognized_people.json'
+RETINA_FACE_TEMP_PATH = '../../internal/json/retina_face_temp.json'
 
 ## CREATE FRAMES FROM A GIVEN SHOT
 def create_frame_from_shot(shot_path):
@@ -74,6 +76,13 @@ def shot_face_recognition():
   # create frames from the shot
   shot_path = read_json_from_file(SHOT_LOCATION)['selected_video']
   frame_paths = create_frame_from_shot(shot_path)
+
+  # Optimization- call retina face and store img path -> count map in retina_face_temp
+  retina_temp = {}
+  for frame in frame_paths:
+    retina_temp[frame] = 0
+  write_json_to_file(RETINA_FACE_TEMP_PATH, retina_temp)
+  subprocess.run(["bash", "-c", f"../scripts/trigger_retina_face.sh ignore_parameter"], capture_output=True, text=True)
 
   recognized_people = set()
   # go through frames and perform recognition
