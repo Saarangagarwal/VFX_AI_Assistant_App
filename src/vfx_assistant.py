@@ -385,6 +385,12 @@ def load_frame4():
         fg = "white",
         font = ('TkHeadingFont', 40)
     ).pack(pady=20)
+    
+    recognized_people = read_json_from_file(RECOGNIZED_PEOPLE_PATH)["recognized_people"]
+    print(recognized_people)
+
+    # REPORT
+    tk.Label(frame4, text=f"Recognized actors: {', '.join(map(str, recognized_people))}").pack()
 
     tk.Button(
         frame4,
@@ -397,9 +403,6 @@ def load_frame4():
         activeforeground="grey",
         command=lambda:load_frame1()
     ).pack()
-
-    recognized_people = read_json_from_file(RECOGNIZED_PEOPLE_PATH)["recognized_people"]
-    print(recognized_people)
 
 
 def load_settings_frame():
@@ -564,4 +567,5 @@ frame1.grid(row=0, column=0)
 load_frame1()
 
 # run app
+root.iconphoto(False, ImageTk.PhotoImage(file='internal/local_assets/images/logo3.jpg'))
 root.mainloop()
