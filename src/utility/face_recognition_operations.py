@@ -28,6 +28,7 @@ import time
 # CONSTANTS - TODO: Fix imports for constants and utility
 FR_DETECTION_METHOD = 'hog'
 FR_DATASET_PATH = '../../internal/internal_dataset' #this is diff compared to the constants file
+PUBLIC_DATASET_PATH = '../../dataset'
 FR_ENCODINGS_DUMP_PATH = '../../internal/internal_dataset/fr_encodings.pickle' # this is changed compared to the constants file
 VERY_HIGH_MATCH_COUNT = 1000000
 SETTINGS_JSON_FILE_PATH = '../../internal/json/settings.json'
@@ -274,7 +275,12 @@ def fr_recognize(data, testImage):
             # create a new directory and insert the image
             if not os.path.exists(f"{FR_DATASET_PATH}/{identity_input.lower()}"):
               os.makedirs(f"{FR_DATASET_PATH}/{identity_input.lower()}")
-          shutil.copy(f"{TEMP_IMG_STORAGE_PATH}/{file_name}", f"{FR_DATASET_PATH}/{identity_input.lower()}/{file_name[:-4]}-{time.time()}.jpg")
+              os.makedirs(f"{PUBLIC_DATASET_PATH}/{identity_input.lower()}")
+              os.makedirs(f"{PUBLIC_DATASET_PATH}/{identity_input.lower()}/refimgs")
+              os.makedirs(f"{PUBLIC_DATASET_PATH}/{identity_input.lower()}/assets")
+          time_now = time.time()
+          shutil.copy(f"{TEMP_IMG_STORAGE_PATH}/{file_name}", f"{FR_DATASET_PATH}/{identity_input.lower()}/{file_name[:-4]}-{time_now}.jpg")
+          shutil.copy(f"{TEMP_IMG_STORAGE_PATH}/{file_name}", f"{PUBLIC_DATASET_PATH}/{identity_input.lower()}/refimgs/{file_name[:-4]}-{time_now}.jpg")
           TRAIN_COUNT_MAP[identity_input.lower()] = 1 + TRAIN_COUNT_MAP.get(identity_input.lower(), 0)
 
           # add to the fr encodings
