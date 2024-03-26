@@ -360,9 +360,9 @@ def load_frame3():
         progressbar.start(2000)
 
         # display text below label
-        progress_label = tk.Label(frame3, text="Face recognition in progress using the magic of AI", anchor="w", font=('Leelawadee', 10))
+        progress_label = tk.Label(frame3, text="Face recognition in progress using the magic of AI", anchor="w", font=('Leelawadee', 10), fg="white", bg=bg_color)
         progress_label.place(relx=0.35, rely=0.8)
-        progress_label = tk.Label(frame3, text="Note: You may see pop-ups if silent mode is disabled", anchor="w", font=('Leelawadee', 10))
+        progress_label = tk.Label(frame3, text="Note: You may see pop-ups if silent mode is disabled", anchor="w", font=('Leelawadee', 10), fg="white", bg=bg_color)
         progress_label.place(relx=0.34, rely=0.83)
 
 
@@ -527,8 +527,8 @@ Vestibulum lacinia arcu eget nulla. Class aptent taciti sociosqu ad litora torqu
 per inceptos himenaeos. Curabitur sodales ligula in libero. Sed dignissim lacinia nunc."""
 
     # Create a Label to display the paragraph of text
-    text_label = tk.Label(about_frame, text=text, justify="left", font=("Leelawadee", 12))
-    text_label.pack()
+    text_label = tk.Label(about_frame, text=text, justify="left", font=("Arial", 16), fg="white", bg=bg_color)
+    text_label.pack(pady=10)
 
     # Back button
     tk.Button(
