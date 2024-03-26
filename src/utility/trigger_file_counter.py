@@ -7,7 +7,7 @@ def read_json_from_file(file_path):
     
 
 TRAIN_COUNT_MAP_FILE_PATH = '../../internal/json/train_count_map.json'
-FR_DATASET_PATH = '../../dataset'
+FR_DATASET_PATH = '../../internal/internal_dataset'
 
 def count_files_in_directory_helper():
     # Filter the items to include only subdirectories

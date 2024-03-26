@@ -77,3 +77,23 @@ def extract_first_frame(video_path):
   cap.release()
   
   return pil_image_resized
+
+
+def clone_dataset_internal(from_path, to_path):
+  # Walk through the directory tree
+  for root, dirs, _ in os.walk(from_path):
+    for dir in dirs:
+      # Path to source images folder
+      source_path = os.path.join(root, dir, 'refimgs')  
+
+      if os.path.exists(source_path):
+        # Path to destination images folder
+        destination_path = os.path.join(to_path, dir) 
+
+        # Create the corresponding directory if not exists
+        if not os.path.exists(destination_path):
+          os.makedirs(destination_path)  
+
+        # Copy images from source to destination
+        for file in os.listdir(source_path):
+          shutil.copy(os.path.join(source_path, file), destination_path)

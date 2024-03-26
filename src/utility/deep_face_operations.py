@@ -19,7 +19,7 @@ ALGO_MODELS = [ "VGG-Face", "Facenet", "Facenet512", "OpenFace", "DeepFace", "De
 VGG_FACE_MODEL = ALGO_MODELS[0]
 # VGG_DATASET_PATH = resource_path('dataset')
 # VGG_DATASET_PATH = VGG_DATASET_PATH.replace('\\', '/')
-VGG_DATASET_PATH = 'C:/Users/agarw/Desktop/1Uwaterloo/4A/URA with Lesley Istead/VFX Assistant App/dataset'
+VGG_DATASET_PATH = 'C:/Users/agarw/Desktop/1Uwaterloo/4A/URA with Lesley Istead/VFX Assistant App/internal/internal_dataset'
 # VGG_DATASET_PATH = resource_path('dataset').replace('\\n', '/').replace('\n', '/').replace('\\', '/')
 # VGG_DATASET_PATH = 'dataset'
 # print("RURU ", resource_path('dataset').replace('\\n', '/').replace('\n', '/').replace('\\', '/'))

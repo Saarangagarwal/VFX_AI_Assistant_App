@@ -27,8 +27,8 @@ import time
 
 # CONSTANTS - TODO: Fix imports for constants and utility
 FR_DETECTION_METHOD = 'hog'
-FR_DATASET_PATH = '../../dataset' #this is diff compared to the constants file
-FR_ENCODINGS_DUMP_PATH = '../../dataset/fr_encodings.pickle' # this is changed compared to the constants file
+FR_DATASET_PATH = '../../internal/internal_dataset' #this is diff compared to the constants file
+FR_ENCODINGS_DUMP_PATH = '../../internal/internal_dataset/fr_encodings.pickle' # this is changed compared to the constants file
 VERY_HIGH_MATCH_COUNT = 1000000
 SETTINGS_JSON_FILE_PATH = '../../internal/json/settings.json'
 TEMP_IMG_STORAGE_PATH = "../../internal/temp_img_data"

@@ -20,7 +20,7 @@ import sys
 sys.path.append('constants')
 sys.path.append('scripts')
 
-from utility.file_operations import read_json_from_file, write_json_to_file, count_files_in_directory, clear_temp_selected_video, extract_first_frame
+from utility.file_operations import read_json_from_file, write_json_to_file, clone_dataset_internal, clear_temp_selected_video, extract_first_frame
 from utility.tkinter_operations import clear_widgets
 from constants.ui_operation import TEMP_JSON_FILE_PATH, SETTINGS_JSON_FILE_PATH, bg_color
 from constants.internal_config import FR_DATASET_PATH
@@ -103,11 +103,15 @@ def display_selected_video(file_path, info_label, logowidget, cancel_button, pro
 
 def generate_face_recognition_encodings():
 
-    def run_subprocess(progressbar):
-        kk = subprocess.run(["bash", "-c", "src/scripts/generate_fr_encodings.sh arguments"], capture_output=True, text=True)
-        print(kk)
+    # First copy the images/actors from dataset folder to /internal/internal_dataset folder
+    clone_dataset_internal(from_path = 'dataset', to_path = 'internal/internal_dataset')
+
+    def run_subprocess(progressbar, label_processing):
+        subprocess.run(["bash", "-c", "src/scripts/generate_fr_encodings.sh arguments"], capture_output=True, text=True)
+        subprocess.run(["bash", "-c", f"src/scripts/trigger_deep_face.sh ../../internal/local_assets/images/d_johnson_internal.jpg"], capture_output=True, text=True)
         progressbar.stop()
         progressbar.place_forget()
+        label_processing.place_forget()
 
         # Success pop-up display and dismiss
         def dismiss_popup(popup):
@@ -130,7 +134,10 @@ def generate_face_recognition_encodings():
     progressbar = ttk.Progressbar(settings_frame, mode="determinate")
     progressbar.place(relx=0.35, rely=0.75, width=300)
 
-    progress_thread = threading.Thread(target=run_subprocess, args=(progressbar,))
+    label_processing = tk.Label(settings_frame, text="Processing... Please grab a drink, this may take a while...", bg=bg_color, fg='white')
+    label_processing.place(relx=0.5, rely=0.82, anchor="center")
+
+    progress_thread = threading.Thread(target=run_subprocess, args=(progressbar,label_processing,))
     progress_thread.start()
     # Start the progress bar animation with 2000 ms interval
     progressbar.start(2000)
