@@ -86,18 +86,24 @@ def shot_face_recognition():
 
   recognized_people = set()
   # go through frames and perform recognition
+  unknowns_count = 0
   for frame_path in frame_paths:
     people = image_face_recognition(frame_path)
+    unknowns = 0
     for person in people:
       if person != "Unknown":
         recognized_people.add(person)
+      else:
+        unknowns += 1
+    unknowns_count = max(unknowns_count, unknowns)
 
   # clean-up
   # print('deleting folder....')
   delete_folder(TEMP_FRAME_DATA_PATH)
 
   recognized_people_json = {
-    "recognized_people": list(recognized_people)
+    "recognized_people": list(recognized_people),
+    "unknowns_count": unknowns_count
   }
   write_json_to_file(RECOGNIZED_PEOPLE_PATH, recognized_people_json)
 

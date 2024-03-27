@@ -1,3 +1,4 @@
+import shutil
 import tkinter as tk
 from tkinter import filedialog
 from PIL import ImageTk, Image
@@ -15,6 +16,7 @@ from imutils.video import VideoStream
 import subprocess
 import threading
 from tkinter import ttk
+from win32com.client import Dispatch
 
 import sys
 sys.path.append('constants')
@@ -23,7 +25,7 @@ sys.path.append('scripts')
 from utility.file_operations import read_json_from_file, write_json_to_file, clone_dataset_internal, clear_temp_selected_video, extract_first_frame
 from utility.tkinter_operations import clear_widgets
 from constants.ui_operation import TEMP_JSON_FILE_PATH, SETTINGS_JSON_FILE_PATH, bg_color
-from constants.internal_config import FR_DATASET_PATH
+from constants.internal_config import PUBLIC_DATASET_PATH, SILENT_MODE_LOG_PATH
 
 # functions
 def import_settings():
@@ -227,6 +229,7 @@ def load_frame2():
     clear_widgets(frame3)
     clear_widgets(about_frame)
     clear_temp_selected_video(TEMP_JSON_FILE_PATH)
+    write_json_to_file(SILENT_MODE_LOG_PATH, {"silent_mode_logs": []})
 
     frame2.tkraise()
     frame2.pack_propagate(False)
@@ -343,7 +346,7 @@ def load_frame3():
 
     # extract video to process
     temp_data = read_json_from_file(TEMP_JSON_FILE_PATH)
-    write_json_to_file(RECOGNIZED_PEOPLE_PATH, {"recognized_people": []})
+    write_json_to_file(RECOGNIZED_PEOPLE_PATH, {"recognized_people": [], "unknowns_count": 0})
     if temp_data['selected_video'] == "":
         load_frame1()
     else:
@@ -393,12 +396,53 @@ def load_frame4():
         font = ('TkHeadingFont', 40)
     ).pack(pady=20)
     
-    recognized_people = read_json_from_file(RECOGNIZED_PEOPLE_PATH)["recognized_people"]
+    recognized_people_json = read_json_from_file(RECOGNIZED_PEOPLE_PATH)
+    recognized_people = recognized_people_json["recognized_people"]
+    unknowns_count = recognized_people_json["unknowns_count"]
     print(recognized_people)
 
-    # REPORT
-    tk.Label(frame4, text=f"Recognized actors: {', '.join(map(str, recognized_people))}").pack()
+    silent_mode_logs = read_json_from_file(SILENT_MODE_LOG_PATH)["silent_mode_logs"]
+    complete_shot_path = read_json_from_file(TEMP_JSON_FILE_PATH)["selected_video"]
+    shot_location = complete_shot_path.rsplit('/', 1)[0]
+    shot_name = os.path.basename(complete_shot_path).split('.')[0] + str(time.time())
+    os.makedirs(f'{shot_location}/ai_vfx_result_{shot_name}')
+    shutil.copy(complete_shot_path, f'{shot_location}/ai_vfx_result_{shot_name}')
+    os.makedirs(f'{shot_location}/ai_vfx_result_{shot_name}/found_assets')
+    recognized_actors_asset_count = ""
 
+    for recognized_person in recognized_people:
+        os.makedirs(f'{shot_location}/ai_vfx_result_{shot_name}/found_assets/{recognized_person}')
+        # os.symlink(f'{shot_location}/ai_vfx_result_{shot_name}/found_assets/{recognized_person}', os.path.join(os.path.abspath(PUBLIC_DATASET_PATH), recognized_person, 'assets'))
+        shell = Dispatch('WScript.Shell')
+        shortcut = shell.CreateShortCut(f'{shot_location}/ai_vfx_result_{shot_name}/found_assets/{recognized_person}/{recognized_person}-assets.lnk')
+        shortcut.Targetpath = os.path.join(os.path.abspath(PUBLIC_DATASET_PATH), recognized_person, 'assets')
+        shortcut.save()
+
+        total_files = 0
+        for _, _, files in os.walk(os.path.join(os.path.abspath(PUBLIC_DATASET_PATH), recognized_person, 'assets')):
+            total_files += len(files)
+        recognized_actors_asset_count += f''' - {recognized_person}: {total_files}
+    - Link to the assets can be found at: <your current folder>/found_assets/{recognized_person}/{recognized_person}-assets.lnk
+    - Assets location: {os.path.join(os.path.abspath(PUBLIC_DATASET_PATH), recognized_person, 'assets')}\n'''
+
+
+    # txt file with summary
+    ai_vfx_assistant_summary = f'''                                    AI VFX Assistant Summary
+    
+Actors found: {', '.join(map(str, recognized_people))}
+Number of Assets that exist for each actor:
+{recognized_actors_asset_count}
+Number of Unknowns (people not identified): {unknowns_count}
+Silent Mode Status during execution: {read_json_from_file(SETTINGS_JSON_FILE_PATH)["SILENT_MODE"]}
+The following unknowns were added to the system: {"None" if not silent_mode_logs else ', '.join(map(str, silent_mode_logs))}
+        
+'''
+    f = open(f'{shot_location}/ai_vfx_result_{shot_name}/ai_vfx_assistant_summary.txt', "w")
+    f.write(ai_vfx_assistant_summary)
+    f.close()
+
+    # REPORT
+    tk.Label(frame4, text=ai_vfx_assistant_summary[61:], justify="left", font=("Arial", 11), fg="white", bg=bg_color).pack(pady=10)
     tk.Button(
         frame4,
         text="Back to Home",

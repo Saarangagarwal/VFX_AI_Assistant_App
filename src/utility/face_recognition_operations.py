@@ -35,6 +35,7 @@ SETTINGS_JSON_FILE_PATH = '../../internal/json/settings.json'
 TEMP_IMG_STORAGE_PATH = "../../internal/temp_img_data"
 DECLINE_TO_IDENTIFY = "ai skip"
 TRAIN_COUNT_MAP_PATH = '../../internal/json/train_count_map.json'
+SILENT_MODE_LOG_PATH = "../../internal/json/silent_mode_logs.json"
 
 #copied from another function
 def read_json_from_file(file_path):
@@ -278,6 +279,9 @@ def fr_recognize(data, testImage):
               os.makedirs(f"{PUBLIC_DATASET_PATH}/{identity_input.lower()}")
               os.makedirs(f"{PUBLIC_DATASET_PATH}/{identity_input.lower()}/refimgs")
               os.makedirs(f"{PUBLIC_DATASET_PATH}/{identity_input.lower()}/assets")
+              silent_mode_logs = read_json_from_file(SILENT_MODE_LOG_PATH)
+              silent_mode_logs["silent_mode_logs"].append(identity_input.lower())
+              write_json_to_file(SILENT_MODE_LOG_PATH, silent_mode_logs)
           time_now = time.time()
           shutil.copy(f"{TEMP_IMG_STORAGE_PATH}/{file_name}", f"{FR_DATASET_PATH}/{identity_input.lower()}/{file_name[:-4]}-{time_now}.jpg")
           shutil.copy(f"{TEMP_IMG_STORAGE_PATH}/{file_name}", f"{PUBLIC_DATASET_PATH}/{identity_input.lower()}/refimgs/{file_name[:-4]}-{time_now}.jpg")
