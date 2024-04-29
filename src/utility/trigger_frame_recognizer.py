@@ -8,7 +8,7 @@ from file_operations import delete_folder, read_json_from_file, write_json_to_fi
 
 # global vars
 SHOT_LOCATION = '../../internal/json/temp.json'
-FRAME_CONTROL = 2
+FRAME_CONTROL = 1
 TEMP_FRAME_DATA_PATH = '../../internal/temp_frame_data'
 RECOGNIZED_PEOPLE_PATH = '../../internal/json/recognized_people.json'
 RETINA_FACE_TEMP_PATH = '../../internal/json/retina_face_temp.json'
